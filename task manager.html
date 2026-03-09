@@ -1,0 +1,259 @@
+﻿<html>
+<head>
+<title>Task Manager</title>
+
+<style>
+body {
+  font-family: Arial;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 90%;
+  margin: auto;
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 50px;
+}
+
+h1 {
+  text-align: center;
+}
+
+input, select, button {
+  padding: 8px;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+.add-btn {
+  background-color: blue;
+  color: white;
+  border: none;
+}
+
+.delete-btn {
+  background-color: red;
+  color: white;
+  border: none;
+}
+
+.edit-btn {
+  background-color: orange;
+  color: white;
+  border: none;
+}
+
+.filters button {
+  background-color: darkgray;
+  color: white;
+  border: none;
+  margin-right: 5px;
+}
+
+.filters {
+  margin-top: 20px;
+}
+
+.task {
+  background-color: whitesmoke;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.task-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.task-row input,
+.task-row select,
+.task-row button {
+  width: 100%;
+}
+
+/* Completed task style */
+.completed {
+  color: blue;
+}
+
+.overdue {
+  border-left: 5px solid red;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.top-bar input {
+  flex: 1;
+}
+
+.dark {
+  background-color: black;
+  color: white;
+}
+
+.dark .container {
+  background-color: #222;
+}
+
+.progress {
+  height: 10px;
+  background-color: gray;
+  margin-top: 15px;
+}
+
+.progress-bar {
+  height: 10px;
+  background-color: green;
+  width: 0%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Task Manager</h1>
+
+  <div class="top-bar">
+    <input type="text" id="search" placeholder="Search task">
+    <button onclick="toggleTheme()">Change Theme</button>
+  </div>
+
+  <div class="task-row">
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <input type="date" id="dueDate">
+
+    <select id="status">
+      <option>Pending</option>
+      <option>In Progress</option>
+      <option>Completed</option>
+    </select>
+
+    <button class="add-btn" onclick="addTask()">Add Task</button>
+  </div>
+
+  <div class="filters">
+    <button onclick="setFilter('All')">All</button>
+    <button onclick="setFilter('Pending')">Pending</button>
+    <button onclick="setFilter('Completed')">Completed</button>
+  </div>
+
+  <div id="taskList"></div>
+
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let filter = "All";
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function addTask() {
+  let name = document.getElementById("taskInput").value;
+  let date = document.getElementById("dueDate").value;
+  let status = document.getElementById("status").value;
+
+  if (name === "") {
+    alert("Enter task name");
+    return;
+  }
+
+  tasks.push({id: Date.now(), name, date, status});
+  saveTasks();
+  document.getElementById("taskInput").value = "";
+  document.getElementById("dueDate").value = "";
+  showTasks();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  saveTasks();
+  showTasks();
+}
+
+function editTask(id) {
+  let newName = prompt("Edit task name:");
+  if (!newName) return;
+  let task = tasks.find(t => t.id === id);
+  task.name = newName;
+  saveTasks();
+  showTasks();
+}
+
+function setFilter(f) {
+  filter = f;
+  showTasks();
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+}
+
+function showTasks() {
+  let list = document.getElementById("taskList");
+  list.innerHTML = "";
+
+  let search = document.getElementById("search").value.toLowerCase();
+  let today = new Date().toISOString().split("T")[0];
+
+  let filtered = tasks.filter(t =>
+    (filter === "All" || t.status === filter) &&
+    t.name.toLowerCase().includes(search)
+  );
+
+  filtered.forEach(task => {
+    let div = document.createElement("div");
+    div.className = "task";
+
+    if (task.status === "Completed") div.classList.add("completed");
+    if (task.date && task.date < today && task.status !== "Completed") div.classList.add("overdue");
+
+    div.innerHTML = `
+      <b>${task.name}</b><br>
+      Date: ${task.date || "No date"} | Status: ${task.status}
+      <br>
+      <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
+      <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+    `;
+
+    list.appendChild(div);
+  });
+
+  updateProgress();
+}
+
+function updateProgress() {
+  let total = tasks.length;
+  let completed = tasks.filter(t => t.status === "Completed").length;
+  let percent = total ? (completed / total) * 100 : 0;
+  document.getElementById("progressBar").style.width = percent + "%";
+}
+
+document.getElementById("search").addEventListener("input", showTasks);
+
+showTasks();
+</script>
+
+</body>
+</html>
