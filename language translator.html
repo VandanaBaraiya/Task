@@ -1,0 +1,152 @@
+﻿<html>
+<head>
+<title>Language Translator</title>
+
+<style>
+body{
+    background-color: #f0f8ff;
+    font-family: Arial;
+}
+
+.container{
+    width: 500px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px gray;
+}
+
+label{
+    font-weight:bold;
+    margin-top:10px;
+    display:block;
+}
+
+textarea, select, button{
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+button{
+    background-color: blue;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 10px; 
+}
+
+.row{
+    display:flex;
+    gap:20px;
+    margin-top:10px;
+}
+
+.col{
+    flex:1;
+}
+
+.col select{
+    width:100%;
+    padding:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+<h2><center>Language Translator</center></h2>
+
+<label for="inputText"> Enter Text:</label>
+<textarea id="inputText" rows="4" placeholder="Enter text"></textarea>
+
+<!--from lag.-to lag.-->
+<div class="row">
+
+<div clas="col">
+<label for="fromLang">From Language:</label>
+<select id="fromLang">
+
+    <option value="hi">Hindi (हिन्दी)</option>
+    <option value="en">English(English)</option>
+    <option value="bn">Bengali (বাংলা)</option>
+    <option value="mr">Marathi (मराठी)</option>
+    <option value="te">Telugu (తెలుగు)</option>
+    <option value="ta">Tamil (தமிழ்)</option>
+    <option value="gu">Gujarati (ગુજરાતી)</option>
+    <option value="ur">Urdu (اردو)</option>
+    <option value="kn">Kannada (ಕನ್ನಡ)</option>
+    <option value="or">Odia (ଓଡ଼ିଆ)</option>
+    <option value="ml">Malayalam (മലയാളം)</option>
+    <option value="fr">French (Français)</option>
+    <option value="ar">Arabic (العربية)</option>
+    <option value="pt">Portuguese (Português)</option>
+    <option value="ru">Russian (Русский)</option>
+    <option value="zh">Chinese (中文)</option>
+    <option value="es">Spanish (Español)</option>
+    <option value="ja">Japanese (日本語)</option>
+    <option value="ko">Korean (한국어)</option>
+</select>
+</div>
+
+<div class="col">
+<label for="toLang">To Language:</label>
+<select id="toLang">
+
+    <option value="hi">Hindi (हिन्दी)</option>
+    <option value="en">English (English)</option>
+     <option value="bn">Bengali (বাংলা)</option>
+    <option value="mr">Marathi (मराठी)</option>
+    <option value="te">Telugu (తెలుగు)</option>
+    <option value="ta">Tamil (தமிழ்)</option>
+    <option value="gu">Gujarati (ગુજરાતી)</option>
+    <option value="ur">Urdu (اردو)</option>
+    <option value="kn">Kannada (ಕನ್ನಡ)</option>
+    <option value="or">Odia (ଓଡ଼ିଆ)</option>
+    <option value="ml">Malayalam (മലയാളം)</option>
+    <option value="fr">French (Français)</option>
+    <option value="ar">Arabic (العربية)</option>
+    <option value="pt">Portuguese (Português)</option>
+    <option value="ru">Russian (Русский)</option>
+    <option value="zh">Chinese (中文)</option>
+    <option value="es">Spanish (Español)</option>
+    <option value="ja">Japanese (日本語)</option>
+    <option value="ko">Korean (한국어)</option>
+</select>
+</div>
+</div><br>
+
+<button onclick="translateText()">Translate</button><br>
+
+<label for="outputText">Translated text:</label>
+<textarea id="outputText" rows="5" readonly></textarea>
+
+</div>
+
+<script>
+function translateText(){
+    let text = document.getElementById("inputText").value;
+    let from = document.getElementById("fromLang").value;
+    let to = document.getElementById("toLang").value;
+
+    if(text.trim() === ""){
+        alert("please enter text");
+    }
+
+    fetch(`https://api.mymemory.translated.net/get?q=${text}&langpair=${from}|${to}`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("outputText").value =
+        data.responseData.translatedText;
+    })
+    .catch(error => {
+        alert("Error in translation");
+    });
+}
+</script>
+
+</body>
+</html>
